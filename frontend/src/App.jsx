@@ -11,6 +11,8 @@ function App() {
   const [downloadUrl, setDownloadUrl] = useState(null);
   const [speed, setSpeed] = useState('1.2');
 
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
   const handleDrop = (e, setter) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
@@ -33,7 +35,7 @@ function App() {
     formData.append('speed', speed);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/process', formData, {
+      const response = await axios.post(`${API_URL}/api/process`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
@@ -42,12 +44,12 @@ function App() {
         
         const checkStatus = async () => {
           try {
-            const statusRes = await axios.get(`http://localhost:5000/api/status/${jobId}`);
+            const statusRes = await axios.get(`${API_URL}/api/status/${jobId}`);
             if (statusRes.data.status === 'processing') {
               setProgress(statusRes.data.progress || 0);
               setTimeout(checkStatus, 2000);
             } else if (statusRes.data.status === 'completed') {
-              setDownloadUrl(`http://localhost:5000${statusRes.data.downloadUrl}`);
+              setDownloadUrl(`${API_URL}${statusRes.data.downloadUrl}`);
               setProgress(100);
               setIsProcessing(false);
               setTimeout(() => setProgress(0), 3000);
